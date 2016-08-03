@@ -1,14 +1,11 @@
-colors        = require 'colors'
-dashdash      = require 'dashdash'
+async    = require 'async'
+colors   = require 'colors'
+dashdash = require 'dashdash'
 
-packageJSON = require './package.json'
+packageJSON         = require './package.json'
+checkForCredentials = require './src/check-for-credentials'
 
 OPTIONS = [{
-  names: ['example', 'e']
-  type: 'string'
-  env: 'EXAMPLE'
-  help: 'example argument'
-}, {
   names: ['help', 'h']
   type: 'bool'
   help: 'Print this help and exit.'
@@ -21,7 +18,7 @@ OPTIONS = [{
 class Command
   constructor: ->
     process.on 'uncaughtException', @die
-    {@example} = @parseOptions()
+    {} = @parseOptions()
 
   parseOptions: =>
     parser = dashdash.createParser({options: OPTIONS})
@@ -35,20 +32,35 @@ class Command
       console.log packageJSON.version
       process.exit 0
 
-    if !options.example
-      console.error "usage: meshblu-verifier-http [OPTIONS]\noptions:\n#{parser.help({includeEnv: true})}"
-      console.error colors.red 'Missing required parameter --example, -e, or env: EXAMPLE'
-      process.exit 1
-
     return options
 
   run: =>
-    console.log "Hi Example! #{@example}"
+    async.series [
+      @execute 'Check For Credentials', checkForCredentials
+    ], @exit
 
   die: (error) =>
     return process.exit(0) unless error?
-    console.error 'ERROR'
-    console.error error.stack
+    console.error colors.red "\n#{error.message}\n"
+    console.error error.description ? error.stack
     process.exit 1
+
+  execute: (name, check) => # Don't worry about it
+    (next) =>
+      check (error) =>
+        @processResult name, error
+        next()
+
+  exit: (error) =>
+    return @die error if error?
+    console.log colors.green '\nEverything looks good, rock on!'
+    process.exit 0
+
+  processResult: (name, error) =>
+    symbol = colors.green '√'
+    symbol = colors.red 'x' if error?
+
+    console.log "[#{symbol}] #{name}"
+    @exit error if error?
 
 module.exports = Command
