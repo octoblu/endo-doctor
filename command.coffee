@@ -2,8 +2,9 @@ async    = require 'async'
 colors   = require 'colors'
 dashdash = require 'dashdash'
 
-packageJSON         = require './package.json'
-checkForCredentials = require './src/check-for-credentials'
+packageJSON      = require './package.json'
+EnvironmentCSON  = require './src/checks/environment-cson-check'
+# CredentialsCheck = require './src/checks/credentials-check'
 
 OPTIONS = [{
   names: ['help', 'h']
@@ -36,7 +37,8 @@ class Command
 
   run: =>
     async.series [
-      @execute 'Check For Credentials', checkForCredentials
+      async.apply @execute, 'Valid environment.cson', EnvironmentCSON
+      # async.apply @execute, 'Check For Credentials', CredentialsCheck
     ], @exit
 
   die: (error) =>
@@ -45,22 +47,26 @@ class Command
     console.error error.description ? error.stack
     process.exit 1
 
-  execute: (name, check) => # Don't worry about it
-    (next) =>
-      check (error) =>
-        @processResult name, error
-        next()
+  execute: (name, Check, next) =>
+    check = new Check
+    check.check (error) =>
+      @displayResult name, error
+      @offerResolution name, error, check.resolve, next
 
   exit: (error) =>
     return @die error if error?
     console.log colors.green '\nEverything looks good, rock on!'
     process.exit 0
 
-  processResult: (name, error) =>
+  displayResult: (name, error) =>
     symbol = colors.green '√'
     symbol = colors.red 'x' if error?
 
     console.log "[#{symbol}] #{name}"
+
+  offerResolution: (name, error, resolve, callback) =>
+    return callback() unless error?
+    console.log colors.yellow "Press enter if you'd like me to resolve this. Press ctrl+c to fix this problem yourself"
     @exit error if error?
 
 module.exports = Command

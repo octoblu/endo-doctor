@@ -2,12 +2,22 @@
 {expect} = require 'chai'
 mockFS   = require 'mock-fs'
 
-checkForCredentials = require '../../src/check-for-credentials'
+CredentialsCheck = require '../../src/checks/credentials-check'
 
 describe 'checkForCredentials', ->
+  beforeEach ->
+    @sut = new CredentialsCheck
+
   describe 'when the meshblu.json is missing', ->
+    beforeEach ->
+      mockFS()
+
+    afterEach ->
+      mockFS.restore()
+
     it 'should yield an error', (done) ->
-      checkForCredentials (error) =>
+      @sut.check (error) =>
+        expect(error).to.exist
         expect(error.message).to.deep.equal 'Missing Meshblu Credentials'
         expect(error.description).to.exist
         done()
@@ -27,7 +37,7 @@ describe 'checkForCredentials', ->
       mockFS.restore()
 
     it 'should not yield an error', (done) ->
-      checkForCredentials (error) =>
+      @sut.check (error) =>
         expect(error).not.to.exist
         done()
 
@@ -51,7 +61,7 @@ describe 'checkForCredentials', ->
       mockFS.restore()
 
     it 'should yield an error', (done) ->
-      checkForCredentials (error) =>
+      @sut.check (error) =>
         expect(error).to.exist
         expect(error.message).to.deep.equal "EACCES, permission denied './meshblu.json'"
         done()
