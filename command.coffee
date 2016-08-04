@@ -1,6 +1,7 @@
 async    = require 'async'
 colors   = require 'colors'
 dashdash = require 'dashdash'
+interact = require 'cli-interact'
 
 packageJSON      = require './package.json'
 EnvironmentCSON  = require './src/checks/environment-cson-check'
@@ -36,6 +37,8 @@ class Command
     return options
 
   run: =>
+    console.log "    Running checks"
+    console.log "    ====================="
     async.series [
       async.apply @execute, 'Valid environment.cson', EnvironmentCSON
       # async.apply @execute, 'Check For Credentials', CredentialsCheck
@@ -66,7 +69,17 @@ class Command
 
   offerResolution: (name, error, resolve, callback) =>
     return callback() unless error?
-    console.log colors.yellow "Press enter if you'd like me to resolve this. Press ctrl+c to fix this problem yourself"
-    @exit error if error?
+    console.log colors.red error.description
+    autoFix = interact.getYesNo colors.yellow "\nWould you like me to try and automatically fix this?"
+    return @rejectedExit() unless autoFix
+    resolve (error) =>
+      return @die error if error?
+      console.log colors.green '\n\n\nI think I fixed it. Time to start over!\n'
+      @run()
+
+
+  rejectedExit: =>
+    console.log "Ok then, just run me again when you've resolved this issue :-)"
+    process.exit 1
 
 module.exports = Command

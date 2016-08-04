@@ -12,4 +12,8 @@ class EnvironmentCSON
         return callback Errors.ENVIRONMENT_CSON_PERMISSIONS_ERROR() if error?
         callback()
 
+  resolve: (callback) =>
+    console.log 'resolving'
+    callback()
+
 module.exports = EnvironmentCSON
