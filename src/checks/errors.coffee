@@ -15,6 +15,13 @@ class Errors
         correct. Warning: If you have me resolve it, I'm gonna create you a brand new device.
       '''
 
+  @DEVICE_PERMISSIONS_NOT_WORLD_DISCOVERABLE: =>
+    _.tap new Error('Oauth device is not world discoverable'), (error) =>
+      error.description = '''
+        To resolve this issue, update the permissions of the oauth device so that it
+        "Can Be Discovered By" "Everyone" on the Device Details page.
+      '''
+
   @ENVIRONMENT_CSON_MISSING: =>
     _.tap new Error('Missing environment.cson file'), (error) =>
       error.description = '''

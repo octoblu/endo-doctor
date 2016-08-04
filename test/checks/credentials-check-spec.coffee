@@ -43,7 +43,7 @@ describe 'checkForCredentials', ->
         auth = new Buffer("uuid:token").toString('base64')
 
         @meshblu
-          .post '/authenticate'
+          .get '/v2/whoami'
           .set 'Authorization', "Basic #{auth}"
           .reply 403, 'Forbidden'
 
@@ -61,9 +61,9 @@ describe 'checkForCredentials', ->
         auth = new Buffer("uuid:token").toString('base64')
 
         @meshblu
-          .post '/authenticate'
+          .get '/v2/whoami'
           .set 'Authorization', "Basic #{auth}"
-          .reply 204
+          .reply 200, uuid: 'uuid'
 
         @fs.writeFileSync 'environment.cson',  cson.createCSONString(MESHBLU_UUID: 'uuid', MESHBLU_TOKEN: 'token')
 

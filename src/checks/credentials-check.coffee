@@ -16,7 +16,7 @@ class CredentialsCheck
       return callback error if error?
 
       meshblu = new MeshbluHTTP _.defaults {uuid: MESHBLU_UUID, token: MESHBLU_TOKEN}, @meshbluParams
-      meshblu.authenticate (error) =>
+      meshblu.whoami (error) =>
         return callback Errors.CREDENTIALS_INVALID() if error?
         return callback()
 

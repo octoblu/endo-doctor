@@ -6,6 +6,7 @@ readlineSync = require 'readline-sync'
 packageJSON      = require './package.json'
 EnvironmentCSONCheck  = require './src/checks/environment-cson-check'
 CredentialsCheck = require './src/checks/credentials-check'
+DevicePermissionsCheck = require './src/checks/device-permissions-check'
 
 OPTIONS = [{
   names: ['help', 'h']
@@ -42,6 +43,7 @@ class Command
     async.series [
       async.apply @execute, 'Valid environment.cson', EnvironmentCSONCheck
       async.apply @execute, 'Check For Credentials', CredentialsCheck
+      async.apply @execute, 'Check For Device Permissions', DevicePermissionsCheck
     ], @exit
 
   die: (error) =>
@@ -69,14 +71,14 @@ class Command
 
   offerResolution: (name, error, resolve, callback) =>
     return callback() unless error?
-    console.log colors.red error.description
+    console.log colors.red "\n#{error.message}"
+    console.log error.description
     autoFix = readlineSync.keyInYN colors.yellow "\nWould you like me to try and automatically fix this?"
     return @rejectedExit() unless autoFix
     resolve (error) =>
       return @die error if error?
       console.log colors.green '\n\n\nI think I fixed it. Time to start over!\n'
       @run()
-
 
   rejectedExit: =>
     console.log "Ok then, just run me again when you've resolved this issue :-)"
