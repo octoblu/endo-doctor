@@ -74,14 +74,17 @@ describe 'checkForCredentials', ->
 
   describe '->resolve', ->
     beforeEach (done) ->
+      @fs.writeFileSync './environment.cson', cson.stringify({})
       @readlineSync.question = sinon.stub().returns 'user-uuid'
       @register = @meshblu
         .post '/devices'
         .send
           owner: 'user-uuid'
+          type: 'device:oauth'
+          name: 'endo-doctor'
           discoverWhitelist:  ['user-uuid']
           configureWhitelist: ['user-uuid']
-        .reply 201, {}
+        .reply 201, {uuid: 'new-uuid', token: 'new-token'}
       @sut.resolve done
 
     it 'should ask the user their uuid', ->
@@ -89,3 +92,10 @@ describe 'checkForCredentials', ->
 
     it 'should register a new device with meshblu', ->
       expect(@register.isDone).to.be.true
+
+    it 'should store the credentials in environment.cson', ->
+      environment = cson.parse @fs.readFileSync './environment.cson'
+      expect(environment).to.containSubset {
+        MESHBLU_UUID:  'new-uuid'
+        MESHBLU_TOKEN: 'new-token'
+      }

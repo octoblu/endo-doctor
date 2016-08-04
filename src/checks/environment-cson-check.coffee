@@ -1,3 +1,4 @@
+cson   = require 'cson'
 Errors = require './errors'
 
 class EnvironmentCSON
@@ -13,7 +14,7 @@ class EnvironmentCSON
         callback()
 
   resolve: (callback) =>
-    @fs.writeFile './environment.cson', '', (error) =>
+    @fs.writeFile './environment.cson', cson.stringify({}), (error) =>
       return callback error if error?
       callback()
 
