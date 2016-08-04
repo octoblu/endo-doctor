@@ -1,67 +1,91 @@
 {afterEach, beforeEach, describe, it} = global
-{expect} = require 'chai'
-mockFS   = require 'mock-fs'
+{expect}      = require 'chai'
+cson          = require 'cson'
+mockFS        = require 'mock-fs'
+enableDestroy = require 'server-destroy'
+shmock        = require 'shmock'
+sinon         = require 'sinon'
 
 CredentialsCheck = require '../../src/checks/credentials-check'
 
 describe 'checkForCredentials', ->
   beforeEach ->
-    @sut = new CredentialsCheck
+    @meshblu = shmock()
+    @meshblu_url = "http://localhost:#{@meshblu.address().port}"
+    enableDestroy @meshblu
 
-  describe 'when the meshblu.json is missing', ->
-    beforeEach ->
-      mockFS()
+    @fs = mockFS.fs()
+    @readlineSync = {}
 
-    afterEach ->
-      mockFS.restore()
+    @sut = new CredentialsCheck {@fs, @readlineSync, meshbluParams: {
+      protocol: 'http'
+      hostname: 'localhost'
+      port: @meshblu.address().port
+    }}
 
-    it 'should yield an error', (done) ->
-      @sut.check (error) =>
-        expect(error).to.exist
-        expect(error.message).to.deep.equal 'Missing Meshblu Credentials'
-        expect(error.description).to.exist
-        done()
+  afterEach (done) ->
+    @meshblu.destroy done
 
-  describe 'when the meshblu.json is present', ->
-    beforeEach ->
-      meshbluJSON = JSON.stringify({
-        uuid: 'uuid'
-        token: 'token'
-        domain: 'octoblu.com'
-        resolveSrv: true
-      })
+  describe '->check', ->
+    describe 'when there is no MESHBLU_UUID or MESHBLU_TOKEN', ->
+      beforeEach ->
+        @fs.writeFileSync 'environment.cson', ''
 
-      mockFS 'meshblu.json': meshbluJSON
+      it 'should yield an error', (done) ->
+        @sut.check (error) =>
+          expect(error).to.exist
+          expect(error.message).to.deep.equal 'Missing Meshblu Credentials'
+          expect(error.description).to.exist
+          done()
 
-    afterEach ->
-      mockFS.restore()
+    describe 'when there is an invalid MESHBLU_UUID or MESHBLU_TOKEN', ->
+      beforeEach ->
+        auth = new Buffer("uuid:token").toString('base64')
 
-    it 'should not yield an error', (done) ->
-      @sut.check (error) =>
-        expect(error).not.to.exist
-        done()
+        @meshblu
+          .post '/authenticate'
+          .set 'Authorization', "Basic #{auth}"
+          .reply 403, 'Forbidden'
 
-  describe 'when the meshblu.json is present but not readable', ->
-    beforeEach ->
-      meshbluJSON = JSON.stringify({
-        uuid: 'uuid'
-        token: 'token'
-        domain: 'octoblu.com'
-        resolveSrv: true
-      })
+        @fs.writeFileSync 'environment.cson',  cson.createCSONString(MESHBLU_UUID: 'uuid', MESHBLU_TOKEN: 'token')
 
-      mockFS({
-        'meshblu.json': mockFS.file({
-          content: meshbluJSON
-          mode:    0o0000
-        })
-      })
+      it 'should yield an error', (done) ->
+        @sut.check (error) =>
+          expect(error).to.exist
+          expect(error.message).to.deep.equal 'Meshblu Credentials are Invalid'
+          expect(error.description).to.exist
+          done()
 
-    afterEach ->
-      mockFS.restore()
+    describe 'when there is a valid MESHBLU_UUID and MESHBLU_TOKEN', ->
+      beforeEach ->
+        auth = new Buffer("uuid:token").toString('base64')
 
-    it 'should yield an error', (done) ->
-      @sut.check (error) =>
-        expect(error).to.exist
-        expect(error.message).to.deep.equal "EACCES, permission denied './meshblu.json'"
-        done()
+        @meshblu
+          .post '/authenticate'
+          .set 'Authorization', "Basic #{auth}"
+          .reply 204
+
+        @fs.writeFileSync 'environment.cson',  cson.createCSONString(MESHBLU_UUID: 'uuid', MESHBLU_TOKEN: 'token')
+
+      it 'should yield no error', (done) ->
+        @sut.check (error) =>
+          expect(error).not.to.exist
+          done()
+
+  describe '->resolve', ->
+    beforeEach (done) ->
+      @readlineSync.question = sinon.stub().returns 'user-uuid'
+      @register = @meshblu
+        .post '/devices'
+        .send
+          owner: 'user-uuid'
+          discoverWhitelist:  ['user-uuid']
+          configureWhitelist: ['user-uuid']
+        .reply 201, {}
+      @sut.resolve done
+
+    it 'should ask the user their uuid', ->
+      expect(@readlineSync.question).to.have.been.called
+
+    it 'should register a new device with meshblu', ->
+      expect(@register.isDone).to.be.true

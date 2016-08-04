@@ -1,11 +1,11 @@
-async    = require 'async'
-colors   = require 'colors'
-dashdash = require 'dashdash'
-interact = require 'cli-interact'
+async        = require 'async'
+colors       = require 'colors'
+dashdash     = require 'dashdash'
+readlineSync = require 'readline-sync'
 
 packageJSON      = require './package.json'
-EnvironmentCSON  = require './src/checks/environment-cson-check'
-# CredentialsCheck = require './src/checks/credentials-check'
+EnvironmentCSONCheck  = require './src/checks/environment-cson-check'
+CredentialsCheck = require './src/checks/credentials-check'
 
 OPTIONS = [{
   names: ['help', 'h']
@@ -40,8 +40,8 @@ class Command
     console.log "    Running checks"
     console.log "    ====================="
     async.series [
-      async.apply @execute, 'Valid environment.cson', EnvironmentCSON
-      # async.apply @execute, 'Check For Credentials', CredentialsCheck
+      async.apply @execute, 'Valid environment.cson', EnvironmentCSONCheck
+      async.apply @execute, 'Check For Credentials', CredentialsCheck
     ], @exit
 
   die: (error) =>
@@ -70,7 +70,7 @@ class Command
   offerResolution: (name, error, resolve, callback) =>
     return callback() unless error?
     console.log colors.red error.description
-    autoFix = interact.getYesNo colors.yellow "\nWould you like me to try and automatically fix this?"
+    autoFix = readlineSync.keyInYN colors.yellow "\nWould you like me to try and automatically fix this?"
     return @rejectedExit() unless autoFix
     resolve (error) =>
       return @die error if error?

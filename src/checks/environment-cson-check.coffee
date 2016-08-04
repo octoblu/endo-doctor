@@ -6,14 +6,15 @@ class EnvironmentCSON
 
   check: (callback) =>
     @fs.access './environment.cson', @fs.F_OK, (error) =>
-      return callback Errors.ENVIRONMENT_CSON_MISSING_ERROR() if error?
+      return callback Errors.ENVIRONMENT_CSON_MISSING() if error?
 
       @fs.access './environment.cson', (@fs.R_OK | @fs.W_OK), (error) =>
-        return callback Errors.ENVIRONMENT_CSON_PERMISSIONS_ERROR() if error?
+        return callback Errors.ENVIRONMENT_CSON_PERMISSIONS() if error?
         callback()
 
   resolve: (callback) =>
-    console.log 'resolving'
-    callback()
+    @fs.writeFile './environment.cson', '', (error) =>
+      return callback error if error?
+      callback()
 
 module.exports = EnvironmentCSON

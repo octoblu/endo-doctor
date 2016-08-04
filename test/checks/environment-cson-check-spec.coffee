@@ -45,8 +45,15 @@ describe 'EnvironmentCSON', ->
         @fs.chmodSync './environment.cson', 0o0444
         @sut.check (@error) => done()
 
-      it 'should not yield an error', ->
       it 'should yield an error', ->
         expect(@error).to.exist
         expect(@error.message).to.deep.equal 'Found environment.cson, but the current user does not have read & write permissions'
         expect(@error.description).to.exist
+
+  describe '->resolve', ->
+    beforeEach (done) ->
+      @sut.resolve done
+
+    it 'should create an empty u+rw file called environment.cson', ->
+      rw = @fs.R_OK | @fs.W_OK
+      @fs.accessSync './environment.cson', rw # throws if file doesn't exist
