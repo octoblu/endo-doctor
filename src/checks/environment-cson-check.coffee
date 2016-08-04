@@ -1,7 +1,7 @@
 Errors = require './errors'
 
 class EnvironmentCSON
-  constructor: ({@fs}) ->
+  constructor: ({@fs}={}) ->
     @fs ?= require 'fs'
 
   check: (callback) =>
