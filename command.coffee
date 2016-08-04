@@ -1,6 +1,7 @@
 async         = require 'async'
 child_process = require 'child_process'
 colors        = require 'colors'
+cson          = require 'cson'
 dashdash      = require 'dashdash'
 readlineSync  = require 'readline-sync'
 
@@ -53,7 +54,8 @@ class Command
       @runEndo()
 
   runEndo: =>
-    child_process.exec 'npm start', (error) =>
+    env = cson.load './environment.cson'
+    child_process.exec 'npm start', {env}, (error) =>
       return @die() unless error?
       console.log ""
       console.log error.message
