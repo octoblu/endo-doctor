@@ -6,18 +6,17 @@ mockFS        = require 'mock-fs'
 enableDestroy = require 'server-destroy'
 shmock        = require 'shmock'
 
-DevicePermissionsCheck = require '../../src/checks/device-permissions-check'
+ManagerURLCheck = require '../../src/checks/manager-url-check'
 
-describe 'DevicePermissionsCheck', ->
+describe 'ManagerURLCheck', ->
   beforeEach ->
     @meshblu = shmock()
     @meshblu_url = "http://localhost:#{@meshblu.address().port}"
     enableDestroy @meshblu
 
     @fs = mockFS.fs()
-    @fs.writeFileSync './environment.cson', cson.stringify MESHBLU_UUID: 'uuid', MESHBLU_TOKEN: 'token'
 
-    @sut = new DevicePermissionsCheck {@fs, meshbluParams: {
+    @sut = new ManagerURLCheck {@fs, meshbluParams: {
       protocol: 'http'
       hostname: 'localhost'
       port: @meshblu.address().port
@@ -27,8 +26,9 @@ describe 'DevicePermissionsCheck', ->
     @meshblu.destroy done
 
   describe '->check', ->
-    describe 'when the device does not have discoverWhitelist "*"', ->
+    describe 'when the ENDO_<CHANNEL>_MANAGER_URL is missing', ->
       beforeEach ->
+        @fs.writeFileSync './environment.cson', cson.stringify {}
         auth = new Buffer('uuid:token').toString 'base64'
 
         @meshblu
@@ -39,18 +39,19 @@ describe 'DevicePermissionsCheck', ->
       it 'should yield an error', (done) ->
         @sut.check (error) =>
           expect(error).to.exist
-          expect(error.message).to.deep.equal 'Oauth device is not world discoverable'
+          expect(error.message).to.deep.equal 'Missing required environment variable ENDO_DOCTOR_MANAGER_URL'
           expect(error.description).to.exist
           done()
 
-    describe 'when the device does have discoverWhitelist "*"', ->
+    describe 'when the ENDO_<CHANNEL>_MANAGER_URL is present', ->
       beforeEach ->
+        @fs.writeFileSync './environment.cson', cson.stringify {ENDO_DOCTOR_MANAGER_URL: 'https://foo.org'}
         auth = new Buffer('uuid:token').toString 'base64'
 
         @meshblu
           .get '/v2/whoami'
           .set 'Authorization', "Basic #{auth}"
-          .reply 200, uuid: 'uuid', discoverWhitelist: ['user-uuid', "*"]
+          .reply 200, uuid: 'uuid', discoverWhitelist: ['user-uuid']
 
       it 'should not yield an error', (done) ->
         @sut.check (error) =>
@@ -59,14 +60,9 @@ describe 'DevicePermissionsCheck', ->
 
   describe '->resolve', ->
     beforeEach (done) ->
-      auth = new Buffer('uuid:token').toString 'base64'
-      @update = @meshblu
-        .put '/v2/devices/uuid'
-        .set 'Authorization', "Basic #{auth}"
-        .send {$addToSet: {discoverWhitelist: '*'}}
-        .reply 204
-
+      @fs.writeFileSync './environment.cson', cson.stringify {}
       @sut.resolve done
 
-    it 'should add "*" to the discover whitelist', ->
-      expect(@update.isDone).to.be.true
+    it 'should add the default url to the environment file', ->
+      environment = cson.parse @fs.readFileSync './environment.cson'
+      expect(environment.ENDO_DOCTOR_MANAGER_URL).to.deep.equal 'https://endo-manager.octoblu.com'

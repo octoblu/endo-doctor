@@ -1,12 +1,14 @@
-async        = require 'async'
-colors       = require 'colors'
-dashdash     = require 'dashdash'
-readlineSync = require 'readline-sync'
+async         = require 'async'
+child_process = require 'child_process'
+colors        = require 'colors'
+dashdash      = require 'dashdash'
+readlineSync  = require 'readline-sync'
 
 packageJSON      = require './package.json'
 EnvironmentCSONCheck  = require './src/checks/environment-cson-check'
 CredentialsCheck = require './src/checks/credentials-check'
 DevicePermissionsCheck = require './src/checks/device-permissions-check'
+ManagerURLCheck = require './src/checks/manager-url-check'
 
 OPTIONS = [{
   names: ['help', 'h']
@@ -44,7 +46,18 @@ class Command
       async.apply @execute, 'Valid environment.cson', EnvironmentCSONCheck
       async.apply @execute, 'Check For Credentials', CredentialsCheck
       async.apply @execute, 'Check For Device Permissions', DevicePermissionsCheck
-    ], @exit
+      async.apply @execute, 'Check For Required Environment Params', ManagerURLCheck
+    ], (error) =>
+      return @die error if error?
+      console.log colors.green '\nEverything looks good, lets try to fire it up!'
+      @runEndo()
+
+  runEndo: =>
+    child_process.exec 'npm start', (error) =>
+      return @die() unless error?
+      console.log ""
+      console.log error.message
+      console.log colors.red "\nUh oh, looks like there are still more problems. You're on your own for this one."
 
   die: (error) =>
     return process.exit(0) unless error?

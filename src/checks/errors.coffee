@@ -36,4 +36,13 @@ class Errors
         chmod u+rw ./environment.cson
       '''
 
+  @MANAGER_URL_MISSING: (variableName) =>
+    _.tap new Error("Missing required environment variable #{variableName}"), (error) =>
+      error.description = '''
+        Generally, the official endo manager (https://endo-manager.octoblu.com) can be used for
+        both production and for local development. The only caviat is that the official endo manager
+        requires the endo to be run with SSL available. However, if you use me to run the endo, that
+        won't be a problem for you :-)
+      '''
+
 module.exports = Errors
