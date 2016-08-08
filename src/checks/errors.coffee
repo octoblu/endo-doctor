@@ -8,6 +8,12 @@ class Errors
         Then, populate MESHBLU_UUID and MESHBLU_TOKEN values in the environment.cson file.
       '''
 
+  @MESHBLU_PRIVATE_KEY_MISSING: =>
+    _.tap new Error('Missing Meshblu Private Key'), (error) =>
+      error.description = '''
+        To resolve this issue, create a private key and add the MESHBLU_PRIVATE_KEY value to the environment.cson file.
+      '''
+
   @CREDENTIALS_INVALID: =>
     _.tap new Error('Meshblu Credentials are Invalid'), (error) =>
       error.description = '''

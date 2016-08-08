@@ -2,6 +2,7 @@ cson        = require 'cson'
 _           = require 'lodash'
 MeshbluHTTP = require 'meshblu-http'
 path        = require 'path'
+optionsSchema = require '../schemas/optionsSchema'
 
 Errors  = require './errors'
 
@@ -43,6 +44,9 @@ class CredentialsCheck
       name: projectName
       discoverWhitelist:  [userUUID]
       configureWhitelist: [userUUID]
+      optionsSchema: optionsSchema
+      options:
+        imageUrl: 'https://icons.octoblu.com/device/oauth.svg'
     }
 
   _register: (userUUID, callback) =>

@@ -9,6 +9,7 @@ readlineSync  = require 'readline-sync'
 packageJSON      = require './package.json'
 EnvironmentCSONCheck  = require './src/checks/environment-cson-check'
 CredentialsCheck = require './src/checks/credentials-check'
+PrivateKeyCheck = require './src/checks/private-key-check'
 DevicePermissionsCheck = require './src/checks/device-permissions-check'
 ManagerURLCheck = require './src/checks/manager-url-check'
 
@@ -32,7 +33,7 @@ class Command
     options = parser.parse(process.argv)
 
     if options.help
-      console.log "usage: meshblu-verifier-http [OPTIONS]\noptions:\n#{parser.help({includeEnv: true})}"
+      console.log "usage: endo-doctor [OPTIONS]\noptions:\n#{parser.help({includeEnv: true})}"
       process.exit 0
 
     if options.version
@@ -47,6 +48,7 @@ class Command
     async.series [
       async.apply @execute, 'Valid environment.cson', EnvironmentCSONCheck
       async.apply @execute, 'Check For Credentials', CredentialsCheck
+      async.apply @execute, 'Check For Meshblu Private Key', PrivateKeyCheck
       async.apply @execute, 'Check For Device Permissions', DevicePermissionsCheck
       async.apply @execute, 'Check For Required Environment Params', ManagerURLCheck
     ], (error) =>
