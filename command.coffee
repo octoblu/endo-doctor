@@ -3,6 +3,7 @@ child_process = require 'child_process'
 colors        = require 'colors'
 cson          = require 'cson'
 dashdash      = require 'dashdash'
+_             = require 'lodash'
 readlineSync  = require 'readline-sync'
 
 packageJSON      = require './package.json'
@@ -54,7 +55,7 @@ class Command
       @runEndo()
 
   runEndo: =>
-    env = cson.load './environment.cson'
+    env = _.defaults cson.load('./environment.cson'), process.env
     child_process.exec 'npm start', {env}, (error) =>
       return @die() unless error?
       console.log ""
