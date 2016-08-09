@@ -44,9 +44,6 @@ class CredentialsCheck
       name: projectName
       discoverWhitelist:  [userUUID]
       configureWhitelist: [userUUID]
-      optionsSchema: optionsSchema
-      options:
-        imageUrl: 'https://icons.octoblu.com/device/oauth.svg'
     }
 
   _register: (userUUID, callback) =>
