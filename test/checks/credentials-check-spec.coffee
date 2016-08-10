@@ -17,11 +17,7 @@ describe 'checkForCredentials', ->
     @fs = mockFS.fs()
     @readlineSync = {}
 
-    @sut = new CredentialsCheck {@fs, @readlineSync, meshbluParams: {
-      protocol: 'http'
-      hostname: 'localhost'
-      port: @meshblu.address().port
-    }}
+    @sut = new CredentialsCheck {@fs, @readlineSync}
 
   afterEach (done) ->
     @meshblu.destroy done
@@ -47,7 +43,13 @@ describe 'checkForCredentials', ->
           .set 'Authorization', "Basic #{auth}"
           .reply 403, 'Forbidden'
 
-        @fs.writeFileSync 'environment.cson',  cson.createCSONString(MESHBLU_UUID: 'uuid', MESHBLU_TOKEN: 'token')
+        @fs.writeFileSync 'environment.cson',  cson.createCSONString(
+          MESHBLU_UUID: 'uuid'
+          MESHBLU_TOKEN: 'token'
+          MESHBLU_PROTOCOL: 'http'
+          MESHBLU_HOSTNAME: 'localhost'
+          MESHBLU_PORT: @meshblu.address().port
+        )
 
       it 'should yield an error', (done) ->
         @sut.check (error) =>
@@ -65,7 +67,13 @@ describe 'checkForCredentials', ->
           .set 'Authorization', "Basic #{auth}"
           .reply 200, uuid: 'uuid'
 
-        @fs.writeFileSync 'environment.cson',  cson.createCSONString(MESHBLU_UUID: 'uuid', MESHBLU_TOKEN: 'token')
+        @fs.writeFileSync 'environment.cson',  cson.createCSONString(
+          MESHBLU_UUID: 'uuid'
+          MESHBLU_TOKEN: 'token'
+          MESHBLU_PROTOCOL: 'http'
+          MESHBLU_HOSTNAME: 'localhost'
+          MESHBLU_PORT: @meshblu.address().port
+        )
 
       it 'should yield no error', (done) ->
         @sut.check (error) =>
@@ -74,7 +82,11 @@ describe 'checkForCredentials', ->
 
   describe '->resolve', ->
     beforeEach (done) ->
-      @fs.writeFileSync './environment.cson', cson.stringify({})
+      @fs.writeFileSync 'environment.cson',  cson.createCSONString(
+        MESHBLU_PROTOCOL: 'http'
+        MESHBLU_HOSTNAME: 'localhost'
+        MESHBLU_PORT: @meshblu.address().port
+      )
       @readlineSync.question = sinon.stub().returns 'user-uuid'
       @register = @meshblu
         .post '/devices'

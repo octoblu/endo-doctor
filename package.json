@@ -27,6 +27,7 @@
     "colors": "^1.1.2",
     "cson": "^3.0.2",
     "dashdash": "^1.14.0",
+    "meshblu-config": "^5.2.0",
     "meshblu-http": "^7.1.0",
     "readline-sync": "^1.4.4",
     "ursa": "^0.9.4"

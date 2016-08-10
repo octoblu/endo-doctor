@@ -12,7 +12,7 @@ CredentialsCheck       = require './src/checks/credentials-check'
 DevicePermissionsCheck = require './src/checks/device-permissions-check'
 EnvironmentCSONCheck   = require './src/checks/environment-cson-check'
 ManagerURLCheck        = require './src/checks/manager-url-check'
-OptionsCheck           = require './src/checks/options-check'
+# OptionsCheck           = require './src/checks/options-check'
 PrivateKeyCheck        = require './src/checks/private-key-check'
 
 OPTIONS = [{
@@ -53,7 +53,7 @@ class Command
       async.apply @execute, 'Check For Meshblu Private Key', PrivateKeyCheck
       async.apply @execute, 'Check For Device Permissions', DevicePermissionsCheck
       async.apply @execute, 'Check For Device Configure Schema', ConfigureSchemaCheck
-      async.apply @execute, 'Check For Device Options', OptionsCheck
+      # async.apply @execute, 'Check For Device Options', OptionsCheck
       async.apply @execute, 'Check For Required Environment Params', ManagerURLCheck
     ], (error) =>
       return @die error if error?
