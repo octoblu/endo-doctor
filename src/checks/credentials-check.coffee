@@ -7,9 +7,8 @@ path          = require 'path'
 Errors  = require './errors'
 
 class CredentialsCheck
-  constructor: ({@fs, @meshbluParams, @readlineSync}={}) ->
+  constructor: ({@fs, @readlineSync}={}) ->
     @fs            ?= require 'fs'
-    @meshbluParams ?= {}
     @readlineSync  ?= require 'readline-sync'
 
   check: (callback) =>

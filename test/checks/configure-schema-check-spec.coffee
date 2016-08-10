@@ -17,7 +17,13 @@ describe 'ConfigureSchemaCheck', ->
     enableDestroy @meshblu
 
     @fs = mockFS.fs()
-    @fs.writeFileSync './environment.cson', cson.stringify MESHBLU_UUID: 'uuid', MESHBLU_TOKEN: 'token'
+    @fs.writeFileSync 'environment.cson',  cson.stringify(
+      MESHBLU_UUID: 'uuid'
+      MESHBLU_TOKEN: 'token'
+      MESHBLU_PROTOCOL: 'http'
+      MESHBLU_HOSTNAME: 'localhost'
+      MESHBLU_PORT: @meshblu.address().port
+    )
 
     @sut = new ConfigureSchemaCheck {@fs, meshbluParams: {
       protocol: 'http'

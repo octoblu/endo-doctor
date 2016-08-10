@@ -7,7 +7,7 @@ Errors  = require './errors'
 OPTIONS_SCHEMA = require '../schemas/optionsSchema'
 
 class ConfigureSchemaCheck
-  constructor: ({@fs, @meshbluParams, @readlineSync}={}) ->
+  constructor: ({@fs, @readlineSync}={}) ->
     @fs            ?= require 'fs'
     @meshbluParams ?= {}
     @readlineSync  ?= require 'readline-sync'

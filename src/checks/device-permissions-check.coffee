@@ -1,11 +1,12 @@
-cson        = require 'cson'
-_           = require 'lodash'
-MeshbluHTTP = require 'meshblu-http'
+cson          = require 'cson'
+_             = require 'lodash'
+MeshbluConfig = require 'meshblu-config'
+MeshbluHTTP   = require 'meshblu-http'
 
 Errors  = require './errors'
 
 class DevicePermissionsCheck
-  constructor: ({@fs, @meshbluParams, @readlineSync}={}) ->
+  constructor: ({@fs, @readlineSync}={}) ->
     @fs            ?= require 'fs'
     @meshbluParams ?= {}
     @readlineSync  ?= require 'readline-sync'
@@ -29,9 +30,9 @@ class DevicePermissionsCheck
   _getMeshblu: (callback) =>
     @fs.readFile './environment.cson', (error, environmentStr) =>
       return callback error if error?
-      {MESHBLU_UUID, MESHBLU_TOKEN} = cson.parseCSONString environmentStr
-      params = _.defaults {uuid: MESHBLU_UUID, token: MESHBLU_TOKEN}, @meshbluParams
+      environment = cson.parseCSONString environmentStr
+      meshbluConfig = new MeshbluConfig({}, {}, env: environment).toJSON()
 
-      callback null, new MeshbluHTTP(params), MESHBLU_UUID
+      callback null, new MeshbluHTTP(meshbluConfig), environment.MESHBLU_UUID
 
 module.exports = DevicePermissionsCheck

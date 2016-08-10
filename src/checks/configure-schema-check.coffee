@@ -1,15 +1,15 @@
-cson        = require 'cson'
-_           = require 'lodash'
-MeshbluHTTP = require 'meshblu-http'
+cson          = require 'cson'
+_             = require 'lodash'
+MeshbluHTTP   = require 'meshblu-http'
+MeshbluConfig = require 'meshblu-config'
 
 Errors  = require './errors'
 
 OPTIONS_SCHEMA = require '../schemas/optionsSchema'
 
 class ConfigureSchemaCheck
-  constructor: ({@fs, @meshbluParams, @readlineSync}={}) ->
+  constructor: ({@fs, @readlineSync}={}) ->
     @fs            ?= require 'fs'
-    @meshbluParams ?= {}
     @readlineSync  ?= require 'readline-sync'
 
   check: (callback) =>
@@ -31,9 +31,9 @@ class ConfigureSchemaCheck
   _getMeshblu: (callback) =>
     @fs.readFile './environment.cson', (error, environmentStr) =>
       return callback error if error?
-      {MESHBLU_UUID, MESHBLU_TOKEN} = cson.parseCSONString environmentStr
-      params = _.defaults {uuid: MESHBLU_UUID, token: MESHBLU_TOKEN}, @meshbluParams
+      environment = cson.parseCSONString environmentStr
+      meshbluConfig = new MeshbluConfig({}, {}, env: environment).toJSON()
 
-      callback null, new MeshbluHTTP(params), MESHBLU_UUID
+      callback null, new MeshbluHTTP(meshbluConfig), environment.MESHBLU_UUID
 
 module.exports = ConfigureSchemaCheck

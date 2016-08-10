@@ -15,13 +15,15 @@ describe 'DevicePermissionsCheck', ->
     enableDestroy @meshblu
 
     @fs = mockFS.fs()
-    @fs.writeFileSync './environment.cson', cson.stringify MESHBLU_UUID: 'uuid', MESHBLU_TOKEN: 'token'
+    @fs.writeFileSync './environment.cson', cson.stringify  {
+      MESHBLU_UUID: 'uuid'
+      MESHBLU_TOKEN: 'token'
+      MESHBLU_PROTOCOL: 'http'
+      MESHBLU_HOSTNAME: 'localhost'
+      MESHBLU_PORT: @meshblu.address().port
+    }
 
-    @sut = new DevicePermissionsCheck {@fs, meshbluParams: {
-      protocol: 'http'
-      hostname: 'localhost'
-      port: @meshblu.address().port
-    }}
+    @sut = new DevicePermissionsCheck {@fs}
 
   afterEach (done) ->
     @meshblu.destroy done
