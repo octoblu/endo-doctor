@@ -6,13 +6,14 @@ dashdash      = require 'dashdash'
 _             = require 'lodash'
 readlineSync  = require 'readline-sync'
 
-packageJSON      = require './package.json'
-EnvironmentCSONCheck  = require './src/checks/environment-cson-check'
-CredentialsCheck = require './src/checks/credentials-check'
-PrivateKeyCheck = require './src/checks/private-key-check'
+packageJSON            = require './package.json'
+ConfigureSchemaCheck   = require './src/checks/configure-schema-check'
+CredentialsCheck       = require './src/checks/credentials-check'
 DevicePermissionsCheck = require './src/checks/device-permissions-check'
-ConfigureSchemaCheck = require './src/checks/configure-schema-check'
-ManagerURLCheck = require './src/checks/manager-url-check'
+EnvironmentCSONCheck   = require './src/checks/environment-cson-check'
+ManagerURLCheck        = require './src/checks/manager-url-check'
+OptionsCheck           = require './src/checks/options-check'
+PrivateKeyCheck        = require './src/checks/private-key-check'
 
 OPTIONS = [{
   names: ['help', 'h']
@@ -52,6 +53,7 @@ class Command
       async.apply @execute, 'Check For Meshblu Private Key', PrivateKeyCheck
       async.apply @execute, 'Check For Device Permissions', DevicePermissionsCheck
       async.apply @execute, 'Check For Device Configure Schema', ConfigureSchemaCheck
+      async.apply @execute, 'Check For Device Options', OptionsCheck
       async.apply @execute, 'Check For Required Environment Params', ManagerURLCheck
     ], (error) =>
       return @die error if error?
