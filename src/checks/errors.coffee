@@ -1,6 +1,13 @@
 _ = require 'lodash'
 
 class Errors
+  @APP_OCTOBLU_HOST_MISSING: =>
+    _.tap new Error("Missing required environment variable APP_OCTOBLU_HOST"), (error) =>
+      error.description = '''
+        Generally, the official app octoblu (https://app.octoblu.com/) can be used for
+        both production and for local development.
+      '''
+
   @CREDENTIALS_MISSING: =>
     _.tap new Error('Missing Meshblu Credentials'), (error) =>
       error.description = '''

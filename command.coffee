@@ -12,6 +12,7 @@ CredentialsCheck       = require './src/checks/credentials-check'
 DevicePermissionsCheck = require './src/checks/device-permissions-check'
 EnvironmentCSONCheck   = require './src/checks/environment-cson-check'
 ManagerURLCheck        = require './src/checks/manager-url-check'
+AppOctobluHostCheck    = require './src/checks/app-octoblu-host-check'
 # OptionsCheck           = require './src/checks/options-check'
 PrivateKeyCheck        = require './src/checks/private-key-check'
 
@@ -54,7 +55,8 @@ class Command
       async.apply @execute, 'Check For Device Permissions', DevicePermissionsCheck
       async.apply @execute, 'Check For Device Configure Schema', ConfigureSchemaCheck
       # async.apply @execute, 'Check For Device Options', OptionsCheck
-      async.apply @execute, 'Check For Required Environment Params', ManagerURLCheck
+      async.apply @execute, 'Check For Manager URL', ManagerURLCheck
+      async.apply @execute, 'Check For APP_OCTOBLU_HOST', AppOctobluHostCheck
     ], (error) =>
       return @die error if error?
       console.log colors.green '\nEverything looks good, lets try to fire it up!'
