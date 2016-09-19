@@ -1,10 +1,13 @@
 # generator-octoblu-cli
 
-[![Dependency status](http://img.shields.io/david/octoblu/generator-octoblu-cli.svg?style=flat)](https://david-dm.org/octoblu/generator-octoblu-cli)
-[![devDependency Status](http://img.shields.io/david/dev/octoblu/generator-octoblu-cli.svg?style=flat)](https://david-dm.org/octoblu/generator-octoblu-cli#info=devDependencies)
-[![Build Status](http://img.shields.io/travis/octoblu/generator-octoblu-cli.svg?style=flat&branch=master)](https://travis-ci.org/octoblu/generator-octoblu-cli)
+[![Build Status](https://travis-ci.org/octoblu/endo-doctor.svg?branch=master)](https://travis-ci.org/octoblu/endo-doctor)
+[![Test Coverage](https://codecov.io/gh/octoblu/endo-doctor/branch/master/graph/badge.svg)](https://codecov.io/gh/octoblu/endo-doctor)
+[![Dependency status](http://img.shields.io/david/octoblu/endo-doctor.svg?style=flat)](https://david-dm.org/octoblu/endo-doctor)
+[![devDependency Status](http://img.shields.io/david/dev/octoblu/endo-doctor.svg?style=flat)](https://david-dm.org/octoblu/endo-doctor#info=devDependencies)
+[![Slack Status](http://community-slack.octoblu.com/badge.svg)](http://community-slack.octoblu.com)
 
-[![NPM](https://nodei.co/npm/generator-octoblu-cli.svg?style=flat)](https://npmjs.org/package/generator-octoblu-cli)
+[![NPM](https://nodei.co/npm/endo-doctor.svg?style=flat)](https://npmjs.org/package/endo-doctor)
+
 
 ## Installing
 

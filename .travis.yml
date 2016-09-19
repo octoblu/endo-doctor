@@ -1,9 +1,6 @@
 language: node_js
 node_js:
 - '5'
-branches:
-  only:
-  - "/^v[0-9]/"
 env:
   - CXX=g++-4.8
 addons:
@@ -26,3 +23,5 @@ deploy:
   on:
     tags: true
     branches: true
+after_success:
+- bash <(curl -s https://codecov.io/bash)
