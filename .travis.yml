@@ -25,3 +25,6 @@ deploy:
     branches: true
 after_success:
 - bash <(curl -s https://codecov.io/bash)
+branches:
+  only:
+  - "/^v[0-9]/"
