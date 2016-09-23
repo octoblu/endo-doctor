@@ -65,4 +65,11 @@ class Errors
         To resolve this issue, create a private key and add the MESHBLU_PRIVATE_KEY value to the environment.cson file.
       '''
 
+  @SERVICE_URL_MISSING: (variableName) =>
+    _.tap new Error("Missing required environment variable #{variableName}"), (error) =>
+      error.description = '''
+        For local development, you'll want to use localtunnel. We usually use:
+        https://projectname.localtunnel.me
+      '''
+
 module.exports = Errors

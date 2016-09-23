@@ -4,6 +4,7 @@ colors        = require 'colors'
 cson          = require 'cson'
 dashdash      = require 'dashdash'
 _             = require 'lodash'
+path          = require 'path'
 readlineSync  = require 'readline-sync'
 
 packageJSON            = require './package.json'
@@ -13,6 +14,7 @@ DevicePermissionsCheck = require './src/checks/device-permissions-check'
 EnvironmentCSONCheck   = require './src/checks/environment-cson-check'
 ManagerURLCheck        = require './src/checks/manager-url-check'
 AppOctobluHostCheck    = require './src/checks/app-octoblu-host-check'
+ServiceUrlCheck        = require './src/checks/service-url-check'
 # OptionsCheck           = require './src/checks/options-check'
 PrivateKeyCheck        = require './src/checks/private-key-check'
 
@@ -30,6 +32,8 @@ class Command
   constructor: ->
     process.on 'uncaughtException', @die
     {} = @parseOptions()
+    @projectName = path.basename process.cwd()
+    @projectConstant = _.toUpper _.snakeCase @projectName
 
   parseOptions: =>
     parser = dashdash.createParser({options: OPTIONS})
@@ -57,6 +61,7 @@ class Command
       # async.apply @execute, 'Check For Device Options', OptionsCheck
       async.apply @execute, 'Check For Manager URL', ManagerURLCheck
       async.apply @execute, 'Check For APP_OCTOBLU_HOST', AppOctobluHostCheck
+      async.apply @execute, "Check For #{@projectConstant}_SERVICE_URL", ServiceUrlCheck
     ], (error) =>
       return @die error if error?
       console.log colors.green '\nEverything looks good, lets try to fire it up!'
