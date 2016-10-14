@@ -48,6 +48,12 @@ class Errors
         To resolve this issue, add a message.received webhook to your service's /v2/messages endpoint
       '''
 
+  @DEVICE_WEBHOOK_EXISTS: =>
+    _.tap new Error('Oauth device has a webhook to /v2/messages. This is not good for firehose mode'), (error) =>
+      error.description = '''
+        To resolve this issue, remove the message.received webhook to your service's /v2/messages endpoint
+      '''
+
   @ENVIRONMENT_CSON_MISSING: =>
     _.tap new Error('Missing environment.cson file'), (error) =>
       error.description = '''

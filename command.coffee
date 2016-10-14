@@ -20,21 +20,30 @@ PrivateKeyCheck        = require './src/checks/private-key-check'
 
 DeviceSubscriptionsCheck = require './src/checks/device-subscriptions-check'
 DeviceWebhookCheck = require './src/checks/device-webhook-check'
+DeviceUnsetWebhookCheck = require './src/checks/device-unset-webhook-check'
 
-OPTIONS = [{
-  names: ['help', 'h']
-  type: 'bool'
-  help: 'Print this help and exit.'
-}, {
-  names: ['version', 'v']
-  type: 'bool'
-  help: 'Print the version and exit.'
-}]
+OPTIONS = [
+  {
+    names: ['help', 'h']
+    type: 'bool'
+    help: 'Print this help and exit.'
+  },
+  {
+    names: ['version', 'v']
+    type: 'bool'
+    help: 'Print the version and exit.'
+  }
+  {
+    names: ['firehose', 'f']
+    type: 'bool'
+    help: 'Setup and run in firehose moe'
+  }
+]
 
 class Command
   constructor: ->
     process.on 'uncaughtException', @die
-    {} = @parseOptions()
+    {@firehose} = @parseOptions()
     @projectName = path.basename process.cwd()
     @projectConstant = _.toUpper _.snakeCase @projectName
 
@@ -55,6 +64,9 @@ class Command
   run: =>
     console.log "    Running checks"
     console.log "    ====================="
+    webhookStep = async.apply @execute, "Check For Device Webhook", DeviceWebhookCheck
+    webhookStep = async.apply @execute, "Remove Message Webhook", DeviceUnsetWebhookCheck if @firehose
+
     async.series [
       async.apply @execute, 'Valid environment.cson', EnvironmentCSONCheck
       async.apply @execute, 'Check For Credentials', CredentialsCheck
@@ -67,7 +79,7 @@ class Command
       async.apply @execute, "Check For #{@projectConstant}_SERVICE_URL", ServiceUrlCheck
 
       async.apply @execute, "Check For Device Subscriptions", DeviceSubscriptionsCheck
-      async.apply @execute, "Check For Device Webhook", DeviceWebhookCheck
+      webhookStep
 
     ], (error) =>
       return @die error if error?
@@ -76,6 +88,7 @@ class Command
 
   runEndo: =>
     env = _.defaults cson.load('./environment.cson'), process.env
+    env.ENDO_USE_FIREHOSE = @firehose unless env.ENDO_USE_FIREHOSE?
     npmStart = child_process.spawn 'npm', ['start'], {env}
 
     npmStart.stdout.on 'data', (data) =>
