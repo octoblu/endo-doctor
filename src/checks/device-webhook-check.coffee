@@ -16,7 +16,7 @@ class DeviceWebhookCheck
       return callback error if error?
       @_getDevice (error, device) =>
         return callback error if error?
-        return callback Errors.DEVICE_WEBHOOK_MISSING() unless _.find device.meshblu?.forwarders?.message?.sent, webhook
+        return callback Errors.DEVICE_WEBHOOK_MISSING() unless _.find device.meshblu?.forwarders?.message?.received, webhook
         callback()
 
   resolve: (callback) =>
@@ -28,7 +28,7 @@ class DeviceWebhookCheck
           $set:
             'meshblu.forwarders.version': '2.0.0',
           $addToSet:
-            'meshblu.forwarders.message.sent': webhook
+            'meshblu.forwarders.message.received': webhook
         meshblu.updateDangerously uuid, update, callback
 
   _getDevice: (callback) =>
