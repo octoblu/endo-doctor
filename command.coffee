@@ -18,6 +18,9 @@ ServiceUrlCheck        = require './src/checks/service-url-check'
 # OptionsCheck           = require './src/checks/options-check'
 PrivateKeyCheck        = require './src/checks/private-key-check'
 
+DeviceSubscriptionsCheck = require './src/checks/device-subscriptions-check'
+DeviceWebhookCheck = require './src/checks/device-webhook-check'
+
 OPTIONS = [{
   names: ['help', 'h']
   type: 'bool'
@@ -62,6 +65,10 @@ class Command
       async.apply @execute, 'Check For Manager URL', ManagerURLCheck
       async.apply @execute, 'Check For APP_OCTOBLU_HOST', AppOctobluHostCheck
       async.apply @execute, "Check For #{@projectConstant}_SERVICE_URL", ServiceUrlCheck
+
+      async.apply @execute, "Check For Device Subscriptions", DeviceSubscriptionsCheck
+      async.apply @execute, "Check For Device Webhook", DeviceWebhookCheck
+
     ], (error) =>
       return @die error if error?
       console.log colors.green '\nEverything looks good, lets try to fire it up!'

@@ -36,6 +36,18 @@ class Errors
         "Can Be Discovered By" "Everyone" on the Device Details page.
       '''
 
+  @DEVICE_SUBSCRIPTIONS_NOT_SUBSCRIBED: =>
+    _.tap new Error('Oauth device is not subscribed to itself'), (error) =>
+      error.description = '''
+        To resolve this issue, subscribe the oauth device to it's own message.received messages
+      '''
+
+  @DEVICE_WEBHOOK_MISSING: =>
+    _.tap new Error('Oauth device does not have a webhook to /v2/messages'), (error) =>
+      error.description = '''
+        To resolve this issue, add a message.received webhook to your service's /v2/messages endpoint
+      '''
+
   @ENVIRONMENT_CSON_MISSING: =>
     _.tap new Error('Missing environment.cson file'), (error) =>
       error.description = '''
