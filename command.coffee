@@ -89,6 +89,7 @@ class Command
   runEndo: =>
     env = _.defaults cson.load('./environment.cson'), process.env
     env.ENDO_USE_FIREHOSE = @firehose unless env.ENDO_USE_FIREHOSE?
+    env.ENDO_SKIP_MESSAGE_ROUTES = @firehose unless env.ENDO_SKIP_MESSAGE_ROUTES?
     npmStart = child_process.spawn 'npm', ['start'], {env}
 
     npmStart.stdout.on 'data', (data) =>
