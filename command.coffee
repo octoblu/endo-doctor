@@ -65,7 +65,7 @@ class Command
     console.log "    Running checks"
     console.log "    ====================="
     webhookStep = async.apply @execute, "Check For Device Webhook", DeviceWebhookCheck
-    webhookStep = async.apply @execute, "Remove Message Webhook", DeviceUnsetWebhookCheck if @firehose || env["#{projectConstant}_SKIP_EXPRESS"] == 'true'
+    webhookStep = async.apply @execute, "Remove Message Webhook", DeviceUnsetWebhookCheck if @firehose || process.env["#{projectConstant}_SKIP_EXPRESS"] == 'true'
 
     async.series [
       async.apply @execute, 'Valid environment.cson', EnvironmentCSONCheck
