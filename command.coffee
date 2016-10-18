@@ -65,7 +65,7 @@ class Command
     console.log "    Running checks"
     console.log "    ====================="
     webhookStep = async.apply @execute, "Check For Device Webhook", DeviceWebhookCheck
-    webhookStep = async.apply @execute, "Remove Message Webhook", DeviceUnsetWebhookCheck if @firehose || process.env["#{projectConstant}_SKIP_EXPRESS"] == 'true'
+    webhookStep = async.apply @execute, "Remove Message Webhook", DeviceUnsetWebhookCheck if @firehose || process.env["#{@projectConstant}_SKIP_EXPRESS"] == 'true'
 
     async.series [
       async.apply @execute, 'Valid environment.cson', EnvironmentCSONCheck
@@ -88,8 +88,8 @@ class Command
 
   runEndo: =>
     env = _.defaults cson.load('./environment.cson'), process.env
-    env["#{projectConstant}_USE_FIREHOSE"] = @firehose unless env["#{projectConstant}_USE_FIREHOSE"]?
-    env["#{projectConstant}_SKIP_EXPRESS"] = @firehose unless env["#{projectConstant}_SKIP_EXPRESS"]?
+    env["#{@projectConstant}_USE_FIREHOSE"] = @firehose unless env["#{@projectConstant}_USE_FIREHOSE"]?
+    env["#{@projectConstant}_SKIP_EXPRESS"] = @firehose unless env["#{@projectConstant}_SKIP_EXPRESS"]?
     npmStart = child_process.spawn 'npm', ['start'], {env}
 
     npmStart.stdout.on 'data', (data) =>
