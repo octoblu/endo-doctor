@@ -94,9 +94,13 @@ class Command
       process.stderr.write "#{data}"
 
     npmStart.on 'close', (code) =>
-      console.log colors.red "\nUh oh, looks like there are still more problems. You're on your own for this one." if code != 0
+      console.log colors.red "\nUh oh, looks like there are still more problems. You're on your own for this one." if code?
       console.log("child process exited with code #{code}")
       process.exit code
+
+    process.on 'SIGINT', =>
+      console.log "The doctor does not like to be interrupted... But I'll let it slide this time"
+      npmStart.kill 'SIGINT'
 
   die: (error) =>
     return process.exit(0) unless error?
