@@ -85,22 +85,22 @@ class Command
 
   runEndo: =>
     env = _.defaults cson.load('./environment.cson'), process.env
-    npmStart = child_process.spawn 'npm', ['start'], {env}
+    yarnStart = child_process.spawn 'yarn', ['start'], {env}
 
-    npmStart.stdout.on 'data', (data) =>
+    yarnStart.stdout.on 'data', (data) =>
       process.stdout.write "#{data}"
 
-    npmStart.stderr.on 'data', (data) =>
+    yarnStart.stderr.on 'data', (data) =>
       process.stderr.write "#{data}"
 
-    npmStart.on 'close', (code) =>
+    yarnStart.on 'close', (code) =>
       console.log colors.red "\nUh oh, looks like there are still more problems. You're on your own for this one." if code?
       console.log("child process exited with code #{code}")
       process.exit code
 
     process.on 'SIGINT', =>
       console.log "The doctor does not like to be interrupted... But I'll let it slide this time"
-      npmStart.kill 'SIGINT'
+      yarnStart.kill 'SIGINT'
 
   die: (error) =>
     return process.exit(0) unless error?
