@@ -33,12 +33,17 @@ OPTIONS = [
     type: 'bool'
     help: 'Print the version and exit.'
   }
+  {
+    names: ['npm', 'n']
+    type: 'bool'
+    help: 'Use "npm start" instead of "yarn start"'
+  }
 ]
 
 class Command
   constructor: ->
     process.on 'uncaughtException', @die
-    {@firehose} = @parseOptions()
+    {@firehose, @npm} = @parseOptions()
     @projectName = path.basename process.cwd()
     @projectConstant = _.toUpper _.snakeCase @projectName
 
@@ -85,22 +90,23 @@ class Command
 
   runEndo: =>
     env = _.defaults cson.load('./environment.cson'), process.env
-    yarnStart = child_process.spawn 'yarn', ['start'], {env}
+    binName = if @npm then 'npm' else 'yarn'
+    endoProcess = child_process.spawn binName, ['start'], {env}
 
-    yarnStart.stdout.on 'data', (data) =>
+    endoProcess.stdout.on 'data', (data) =>
       process.stdout.write "#{data}"
 
-    yarnStart.stderr.on 'data', (data) =>
+    endoProcess.stderr.on 'data', (data) =>
       process.stderr.write "#{data}"
 
-    yarnStart.on 'close', (code) =>
+    endoProcess.on 'close', (code) =>
       console.log colors.red "\nUh oh, looks like there are still more problems. You're on your own for this one." if code?
       console.log("child process exited with code #{code}")
       process.exit code
 
     process.on 'SIGINT', =>
       console.log "The doctor does not like to be interrupted... But I'll let it slide this time"
-      yarnStart.kill 'SIGINT'
+      endoProcess.kill 'SIGINT'
 
   die: (error) =>
     return process.exit(0) unless error?
